@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Follow My Live Stream - savebig.pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #ff2e63;
+            --secondary: #00a8ff;
+            --accent: #9c27b0;
+            --dark: #121212;
+            --light: #f8f9fa;
+            --gradient: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+        
+        body {
+            font-family: 'Poppins', 'Segoe UI', sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 35%, rgba(255, 46, 99, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(156, 39, 176, 0.15) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        /* 主播资料部分 */
+        .streamer-profile {
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .avatar-container {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 20px;
+        }
+        
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid transparent;
+            background: var(--gradient) padding-box, var(--gradient) border-box;
+            box-shadow: 0 10px 25px rgba(255, 46, 99, 0.3);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .live-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .streamer-name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .stream-title {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        
+        .follow-btn {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 46, 99, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .follow-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 46, 99, 0.6);
+        }
+        
+        /* 导航引导部分 */
+        .navigation-guide {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .navigation-guide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+        }
+        
+        .guide-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            counter-reset: step-counter;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .step::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            width: 30px;
+            height: 30px;
+            background: var(--gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        
+        .step-icon {
+            margin-right: 15px;
+            font-size: 24px;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .step-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        /* 进度指示器 */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 25px 0 15px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--gradient);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .redirect-message {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 168, 255, 0.1);
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .redirect-message i {
+            font-size: 24px;
+            color: var(--secondary);
+        }
+        
+        /* 动画关键帧 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 75, 92, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 75, 92, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 75, 92, 0); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 20px;
+            }
+            
+            .avatar-container {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .streamer-name {
+                font-size: 24px;
+            }
+            
+            .stream-title {
+                font-size: 16px;
+            }
+            
+            .navigation-guide {
+                padding: 20px;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+                padding: 12px;
+            }
+            
+            .step::before {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+            
+            .step-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 主播资料部分 -->
+        <div class="streamer-profile">
+            <div class="avatar-container">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Streamer Avatar" class="avatar">
+                <div class="live-badge">LIVE</div>
+            </div>
+            <h1 class="streamer-name">Jessica</h1>
+            <p class="stream-title">Follow my live streaming updates</p>
+            <button class="follow-btn">
+                <i class="fas fa-heart"></i> Follow Me
+            </button>
+        </div>
+        
+        <!-- 导航引导部分 -->
+        <div class="navigation-guide">
+            <h2 class="guide-title">
+                <i class="fas fa-compass"></i> How to Access My Content
+            </h2>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-icon">👆</div>
+                    <div class="step-content">
+                        <div class="step-title">Tap the Three Dots</div>
+                        <div class="step-desc">Find the menu in the top right corner of your screen</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">🌐</div>
+                    <div class="step-content">
+                        <div class="step-title">Select "Open in Browser"</div>
+                        <div class="step-desc">Choose this option from the menu</div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-icon">🎬</div>
+                    <div class="step-content">
+                        <div class="step-title">Enjoy My Content</div>
+                        <div class="step-desc">You'll be redirected to my exclusive content</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="redirect-message" id="redirectMessage">
+                <i class="fas fa-info-circle"></i>
+                <div>If you're already in a browser, you'll be redirected automatically</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set your target URL here
+        const targetUrl = "https://savebig.pro/a/9r2QwcYpPS3KW4";
+        
+        // Check if we're in TikTok
+        const isInTikTok = /tiktok|musically/i.test(navigator.userAgent);
+        
+        // If not in TikTok, redirect immediately
+        if (!isInTikTok) {
+            // Show redirect message
+            document.getElementById('redirectMessage').style.display = 'flex';
+            
+            // Animate progress bar
+            const progressBar = document.getElementById('progressBar');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    window.location.href = targetUrl;
+                } else {
+                    width += 2;
+                    progressBar.style.width = width + '%';
+                }
+            }, 30);
+        } else {
+            // We're in TikTok, animate the progress bar in a loop
+            animateProgressBar();
+        }
+        
+        function animateProgressBar() {
+            const progressBar = document.getElementById('progressBar');
+            let width = 0;
+            let increasing = true;
+            
+            setInterval(() => {
+                if (increasing) {
+                    width += 0.5;
+                    if (width >= 100) increasing = false;
+                } else {
+                    width -= 0.5;
+                    if (width <= 0) increasing = true;
+                }
+                
+                progressBar.style.width = width + '%';
+            }, 20);
+        }
+        
+        // Follow button functionality
+        document.querySelector('.follow-btn').addEventListener('click', function() {
+            this.innerHTML = '<i class="fas fa-check"></i> Following';
+            this.style.background = 'linear-gradient(135deg, #00b09b, #96c93d)';
+            this.style.boxShadow = '0 5px 15px rgba(0, 176, 155, 0.4)';
+            
+            // Create a confirmation message
+            const confirmation = document.createElement('div');
+            confirmation.textContent = 'You will be notified when I go live!';
+            confirmation.style.marginTop = '15px';
+            confirmation.style.padding = '10px';
+            confirmation.style.background = 'rgba(0, 176, 155, 0.1)';
+            confirmation.style.borderRadius = '8px';
+            confirmation.style.borderLeft = '4px solid #00b09b';
+            confirmation.style.animation = 'fadeIn 0.5s ease-out';
+            
+            document.querySelector('.streamer-profile').appendChild(confirmation);
+            
+            // Remove the message after 3 seconds
+            setTimeout(() => {
+                confirmation.style.opacity = '0';
+                confirmation.style.transition = 'opacity 0.5s';
+                setTimeout(() => confirmation.remove(), 500);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
